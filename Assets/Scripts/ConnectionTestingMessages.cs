@@ -17,13 +17,13 @@ public class ConnectionTestingMessages : MonoBehaviour
         _stringBuilder.Append("My IP: ").Append(ConnectionManager.Instance.MyIpAddress).Append('\n');
         if (GameInfo.IsSpectator)
         {
-            _stringBuilder.Append("Connected Client IPs:\n");
+            _stringBuilder.Append("Connected Host IP:\n");
             ConnectionManager.Instance.Client_ConnectionToServerSucceded += Client_OnConnectionToServerSucceded;
             ConnectionManager.Instance.Client_DisconnectedFromServer += Client_OnDisconnectedFromServer;
         }
         else
         {
-            _stringBuilder.Append("Connected Host IP:\n");
+            _stringBuilder.Append("Connected Client IPs:\n");
             NetworkManager.Instance.Networker.playerAccepted += Server_PlayerAccepted;
             NetworkManager.Instance.Networker.playerDisconnected += Server_PlayerDisconnected;
         }
