@@ -45,7 +45,9 @@ public class SpectatorUIController : MonoBehaviour
 
     private void Start ()
     {
-        State = UIState.start;
+        if (GameInfo.IsPlayer) { Destroy(gameObject); return; }
+
+        State = UIState.playingGame;
         _joinButton.gameObject.SetActive(false);
         _pauseUI.SetActive (false);
 
