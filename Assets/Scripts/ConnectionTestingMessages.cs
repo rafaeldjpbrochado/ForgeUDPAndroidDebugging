@@ -37,18 +37,21 @@ public class ConnectionTestingMessages : MonoBehaviour
         if (startIndex >= 0)
         {
             _stringBuilder.Remove(startIndex, player.Ip.Length + 1);
+            _messageText.SetText(_stringBuilder);
         }
     }
 
     void Server_PlayerAccepted (NetworkingPlayer player, NetWorker sender)
     {
         _stringBuilder.Append(player.Ip).Append('\n');
+        _messageText.SetText(_stringBuilder);
     }
 
     void Client_OnConnectionToServerSucceded ()
     {
         _client_serverIp = ConnectionManager.Instance.ServerCurrentlyConnectedTo.ip;
         _stringBuilder.Append(_client_serverIp);
+        _messageText.SetText(_stringBuilder);
     }
 
     void Client_OnDisconnectedFromServer ()
@@ -57,6 +60,7 @@ public class ConnectionTestingMessages : MonoBehaviour
         if (startIndex >= 0)
         {
             _stringBuilder.Remove(startIndex, _client_serverIp.Length);
+            _messageText.SetText(_stringBuilder);
         }
     }
 
