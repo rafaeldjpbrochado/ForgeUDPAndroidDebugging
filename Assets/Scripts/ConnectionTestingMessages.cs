@@ -15,7 +15,7 @@ public class ConnectionTestingMessages : MonoBehaviour
     {
         _stringBuilder = new System.Text.StringBuilder();
         _stringBuilder.Append("My IP: ").Append(ConnectionManager.Instance.MyIpAddress).Append('\n');
-        if (GameInfo.IsPlayer)
+        if (GameInfo.IsSpectator)
         {
             _stringBuilder.Append("Connected Client IPs:\n");
             ConnectionManager.Instance.Client_ConnectionToServerSucceded += Client_OnConnectionToServerSucceded;
