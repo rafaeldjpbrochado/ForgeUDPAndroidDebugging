@@ -22,6 +22,8 @@ public static class GameInfo
         #endif
 
         #if UNITY_EDITOR
+            GameType = GameType.Server;
+            
             GameInfoDebugSettings debugSettings = UnityEngine.Object.FindObjectOfType<GameInfoDebugSettings>();
             if (debugSettings.LaunchAsClient)
             {
