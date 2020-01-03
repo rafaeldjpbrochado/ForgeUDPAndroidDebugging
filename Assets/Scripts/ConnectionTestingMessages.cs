@@ -33,27 +33,29 @@ public class ConnectionTestingMessages : MonoBehaviour
         _messageText.text = _stringBuilder.ToString();
     }
 
-    void Server_PlayerDisconnected (NetworkingPlayer player, NetWorker sender)
-    {
-        MainThreadManager.Run(
-            () => {
-                int startIndex = FindString(_stringBuilder, player.Ip);
-                if (startIndex >= 0)
-                {
-                    _stringBuilder.Remove(startIndex, player.Ip.Length + 1);
-                    _messageText.text = _stringBuilder.ToString();
-                }
-            },
-            MainThreadManager.UpdateType.Update
-        );
-    }
-
     void Server_PlayerAccepted (NetworkingPlayer player, NetWorker sender)
     {
         MainThreadManager.Run(
             () => {
                 _stringBuilder.Append(FormatNetworkInfo(player.Ip, player.Port)).Append('\n');
                 _messageText.text = _stringBuilder.ToString();
+            },
+            MainThreadManager.UpdateType.Update
+        );
+    }
+
+    void Server_PlayerDisconnected (NetworkingPlayer player, NetWorker sender)
+    {
+        MainThreadManager.Run(
+            () => {
+                string netInfo = FormatNetworkInfo(player.Ip, player.Port);
+
+                int startIndex = FindString(_stringBuilder, netInfo);
+                if (startIndex >= 0)
+                {
+                    _stringBuilder.Remove(startIndex, netInfo.Length + 1);
+                    _messageText.text = _stringBuilder.ToString();
+                }
             },
             MainThreadManager.UpdateType.Update
         );
@@ -67,11 +69,11 @@ public class ConnectionTestingMessages : MonoBehaviour
         string currentNetInfo = FormatMyNetworkInfo();
         if (_client_myNetworkInfo != currentNetInfo)
         {
-            _client_myNetworkInfo = currentNetInfo;
             int startIndex = FindString(_stringBuilder, _client_myNetworkInfo);
-
             _stringBuilder.Remove(startIndex, _client_myNetworkInfo.Length);
-            _messageText.text = _stringBuilder.ToString();
+            _stringBuilder.Insert(startIndex, currentNetInfo);
+
+            _client_myNetworkInfo = currentNetInfo;
         }
 
         _stringBuilder.Append(_client_serverNetworkInfo);
