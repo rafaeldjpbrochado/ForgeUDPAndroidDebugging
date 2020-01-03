@@ -36,8 +36,9 @@ public class ConnectionManager : MonoBehaviour
     public const float TIME_TO_REFRESH_SERVER_LIST = 5f;
     private const int MAX_CONNECTED_SPECTATORS = 30;
 
+    private const ushort SERVER_PORT_NUMBER = 15937;
     public string MyIpAddress { get; private set; }
-    private ushort _portNumber = 15937;
+    public ushort MyPortNumber { get; private set; }
     private NetWorker _myNetWorker;
     private List<ServerInfo> _activeServers;
     private ServerInfo _reconnectToServer = ServerInfo.Null;
@@ -68,7 +69,7 @@ public class ConnectionManager : MonoBehaviour
         MyIpAddress = foundLocalIp.ToString();
 
         // Do any firewall opening requests on the operating system
-        NetWorker.PingForFirewall(_portNumber);
+        NetWorker.PingForFirewall(SERVER_PORT_NUMBER);
         //Ensure that all RPCs are automatically run on the main thread to avoid errors
         Rpc.MainThreadRunner = MainThreadManager.Instance;
 
@@ -88,7 +89,7 @@ public class ConnectionManager : MonoBehaviour
     void Server_HostGame ()
     {
         UDPServer udpServer = new UDPServer(MAX_CONNECTED_SPECTATORS);
-        udpServer.Connect(MyIpAddress, _portNumber);
+        udpServer.Connect(MyIpAddress, SERVER_PORT_NUMBER);
         udpServer.playerTimeout += Server_OnClientTimeout;
         _myNetWorker = udpServer;
 
@@ -126,6 +127,7 @@ public class ConnectionManager : MonoBehaviour
     {
         Debug.Assert(networker.IsBound, "NetWorker failed to build");
 
+        MyPortNumber = networker.Port;
         _networkManager.Initialize(networker);
         NetworkObject.Flush(networker); //Called because we are already in the correct scene!
     }
@@ -247,7 +249,7 @@ public class ConnectionManager : MonoBehaviour
         if (IsRefreshingList) { return; }
 
         IsRefreshingList = true;
-        NetWorker.RefreshLocalUdpListings (_portNumber);
+        NetWorker.RefreshLocalUdpListings (SERVER_PORT_NUMBER);
         Client_ServerListRefreshStarted?.Invoke();
 
         StartCoroutine(InvokeEventWhenListRefreshed(Time.time));

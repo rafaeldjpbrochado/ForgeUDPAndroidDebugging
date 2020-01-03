@@ -7,14 +7,18 @@ public class ConnectionTestingMessages : MonoBehaviour
 {
     [SerializeField] private Text _messageText;
     private System.Text.StringBuilder _stringBuilder;
-    private string _client_serverIp;
+    private string _client_serverNetworkInfo;
+    private string _client_myNetworkInfo;
 
     private void Awake ()
     {
+        string myNetInfo = FormatMyNetworkInfo();
+
         _stringBuilder = new System.Text.StringBuilder();
-        _stringBuilder.Append("My IP: ").Append(ConnectionManager.Instance.MyIpAddress).Append('\n');
+        _stringBuilder.Append("My IP: ").Append(myNetInfo).Append('\n');
         if (GameInfo.IsClient)
         {
+            _client_myNetworkInfo = myNetInfo;
             _stringBuilder.Append("Connected Host IP:\n");
             ConnectionManager.Instance.Client_ConnectionToServerSucceded += Client_OnConnectionToServerSucceded;
             ConnectionManager.Instance.Client_DisconnectedFromServer += Client_OnDisconnectedFromServer;
@@ -48,7 +52,7 @@ public class ConnectionTestingMessages : MonoBehaviour
     {
         MainThreadManager.Run(
             () => {
-                _stringBuilder.Append(player.Ip).Append('\n');
+                _stringBuilder.Append(FormatNetworkInfo(player.Ip, player.Port)).Append('\n');
                 _messageText.text = _stringBuilder.ToString();
             },
             MainThreadManager.UpdateType.Update
@@ -57,19 +61,41 @@ public class ConnectionTestingMessages : MonoBehaviour
 
     void Client_OnConnectionToServerSucceded ()
     {
-        _client_serverIp = ConnectionManager.Instance.ServerCurrentlyConnectedTo.ip;
-        _stringBuilder.Append(_client_serverIp);
+        ConnectionManager.ServerInfo server = ConnectionManager.Instance.ServerCurrentlyConnectedTo;
+        _client_serverNetworkInfo = FormatNetworkInfo (server.ip, server.port);
+
+        string currentNetInfo = FormatMyNetworkInfo();
+        if (_client_myNetworkInfo != currentNetInfo)
+        {
+            _client_myNetworkInfo = currentNetInfo;
+            int startIndex = FindString(_stringBuilder, _client_myNetworkInfo);
+
+            _stringBuilder.Remove(startIndex, _client_myNetworkInfo.Length);
+            _messageText.text = _stringBuilder.ToString();
+        }
+
+        _stringBuilder.Append(_client_serverNetworkInfo);
         _messageText.text = _stringBuilder.ToString();
     }
 
     void Client_OnDisconnectedFromServer ()
     {
-        int startIndex = FindString(_stringBuilder, _client_serverIp);
+        int startIndex = FindString(_stringBuilder, _client_serverNetworkInfo);
         if (startIndex >= 0)
         {
-            _stringBuilder.Remove(startIndex, _client_serverIp.Length);
+            _stringBuilder.Remove(startIndex, _client_serverNetworkInfo.Length);
             _messageText.text = _stringBuilder.ToString();
         }
+    }
+
+    private string FormatMyNetworkInfo()
+    {
+        return FormatNetworkInfo(ConnectionManager.Instance.MyIpAddress, ConnectionManager.Instance.MyPortNumber);
+    }
+
+    private string FormatNetworkInfo(string ipAddress, ushort port)
+    {
+        return ipAddress + (": " + port);
     }
 
     int FindString (System.Text.StringBuilder stringBuilder, string findThis)
