@@ -1,6 +1,5 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
-using TMPro;
 
 public class ServerListUIButton : MonoBehaviour
 {
@@ -9,7 +8,7 @@ public class ServerListUIButton : MonoBehaviour
     [SerializeField] private Sprite _buttonColorAlt;
     [SerializeField] private Sprite _buttonColorHighlight;
 
-    [SerializeField] private TextMeshProUGUI _buttonText;
+    [SerializeField] private Text _buttonText;
     [SerializeField] private Color _textColor;
     [SerializeField] private Color _textColorHighlight;
 
@@ -18,7 +17,7 @@ public class ServerListUIButton : MonoBehaviour
     private int _index;
 
     public Button Button { get { return _buttonObject; } }
-    public TextMeshProUGUI Text { get { return _buttonText; } }
+    public Text Text { get { return _buttonText; } }
     public Image MyImage { get { return _myImage; } }
 
     public event System.Action<ServerListUIButton> ButtonPressed;

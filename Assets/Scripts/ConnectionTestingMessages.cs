@@ -1,13 +1,11 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-using TMPro;
+﻿using UnityEngine;
+using UnityEngine.UI;
 using BeardedManStudios.Forge.Networking;
 using BeardedManStudios.Forge.Networking.Unity;
 
 public class ConnectionTestingMessages : MonoBehaviour
 {
-    [SerializeField] private TextMeshProUGUI _messageText;
+    [SerializeField] private Text _messageText;
     private System.Text.StringBuilder _stringBuilder;
     private string _client_serverIp;
 
@@ -28,7 +26,7 @@ public class ConnectionTestingMessages : MonoBehaviour
             NetworkManager.Instance.Networker.playerDisconnected += Server_PlayerDisconnected;
         }
         
-        _messageText.SetText(_stringBuilder);
+        _messageText.text = _stringBuilder.ToString();
     }
 
     void Server_PlayerDisconnected (NetworkingPlayer player, NetWorker sender)
@@ -37,21 +35,21 @@ public class ConnectionTestingMessages : MonoBehaviour
         if (startIndex >= 0)
         {
             _stringBuilder.Remove(startIndex, player.Ip.Length + 1);
-            _messageText.SetText(_stringBuilder);
+            _messageText.text = _stringBuilder.ToString();
         }
     }
 
     void Server_PlayerAccepted (NetworkingPlayer player, NetWorker sender)
     {
         _stringBuilder.Append(player.Ip).Append('\n');
-        _messageText.SetText(_stringBuilder);
+        _messageText.text = _stringBuilder.ToString();
     }
 
     void Client_OnConnectionToServerSucceded ()
     {
         _client_serverIp = ConnectionManager.Instance.ServerCurrentlyConnectedTo.ip;
         _stringBuilder.Append(_client_serverIp);
-        _messageText.SetText(_stringBuilder);
+        _messageText.text = _stringBuilder.ToString();
     }
 
     void Client_OnDisconnectedFromServer ()
@@ -60,7 +58,7 @@ public class ConnectionTestingMessages : MonoBehaviour
         if (startIndex >= 0)
         {
             _stringBuilder.Remove(startIndex, _client_serverIp.Length);
-            _messageText.SetText(_stringBuilder);
+            _messageText.text = _stringBuilder.ToString();
         }
     }
 

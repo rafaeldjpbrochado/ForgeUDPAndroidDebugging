@@ -1,6 +1,5 @@
 ﻿using System.Text;
 using UnityEngine;
-using TMPro;
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -22,7 +21,7 @@ public class ServerListUIController : MonoBehaviour
     [SerializeField] private RectTransform _myRectTransform;
     public RectTransform MyRectTransform { get { return _myRectTransform; } }
     [SerializeField] private Button _refreshButton;
-    [SerializeField] private TextMeshProUGUI _dropdownButtonText;
+    [SerializeField] private Text _dropdownButtonText;
     [SerializeField] private Image _dropdownButtonChangingSprite;
     [SerializeField] private Sprite _dropdownButtonOnSprite;
     [SerializeField] private Sprite _dropdownButtonOffSprite;
@@ -116,7 +115,7 @@ public class ServerListUIController : MonoBehaviour
             //setup newButtonScript
             _buttons[i].CorrespondingServer = activeServers[i];
             //update button text
-            _buttons[i].Text.SetText (GetServerDescription(activeServers[i]));
+            _buttons[i].Text.text = GetServerDescription(activeServers[i]).ToString();
         }
         //Disable the buttons that were previously active but now don't need to be active
         //Happens with the number of activeServers drops
@@ -151,7 +150,7 @@ public class ServerListUIController : MonoBehaviour
     {
         if (NumActiveServerButtons == 0)
         {
-            _dropdownButtonText.SetText (SEARCHING_FOR_LABS_TEXT);
+            _dropdownButtonText.text = SEARCHING_FOR_LABS_TEXT;
         }
         _refreshButton.interactable = false;
 
@@ -178,11 +177,11 @@ public class ServerListUIController : MonoBehaviour
     {
         if (ChosenServer == null)
         {
-            _dropdownButtonText.SetText (NumActiveServerButtons == 0 ? NO_AVALIABLE_LABS_TEXT : SELECT_A_LAB_TEXT);
+            _dropdownButtonText.text = NumActiveServerButtons == 0 ? NO_AVALIABLE_LABS_TEXT : SELECT_A_LAB_TEXT;
         }
         else
         {
-            _dropdownButtonText.SetText (GetServerDescription (ChosenServer.CorrespondingServer));
+            _dropdownButtonText.text = GetServerDescription (ChosenServer.CorrespondingServer).ToString();
         }
     }
 
