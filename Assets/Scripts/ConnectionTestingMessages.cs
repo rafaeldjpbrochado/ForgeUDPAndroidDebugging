@@ -13,7 +13,7 @@ public class ConnectionTestingMessages : MonoBehaviour
     {
         _stringBuilder = new System.Text.StringBuilder();
         _stringBuilder.Append("My IP: ").Append(ConnectionManager.Instance.MyIpAddress).Append('\n');
-        if (GameInfo.IsSpectator)
+        if (GameInfo.IsClient)
         {
             _stringBuilder.Append("Connected Host IP:\n");
             ConnectionManager.Instance.Client_ConnectionToServerSucceded += Client_OnConnectionToServerSucceded;

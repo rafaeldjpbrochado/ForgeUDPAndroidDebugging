@@ -6,7 +6,7 @@ public class SpectatorUIController : MonoBehaviour
 
     private void Start ()
     {
-        if (GameInfo.IsPlayer)
+        if (GameInfo.IsServer)
         {
             Destroy(gameObject);
             return;

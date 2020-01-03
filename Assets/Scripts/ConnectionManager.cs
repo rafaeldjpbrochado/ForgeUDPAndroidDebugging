@@ -72,7 +72,7 @@ public class ConnectionManager : MonoBehaviour
         //Ensure that all RPCs are automatically run on the main thread to avoid errors
         Rpc.MainThreadRunner = MainThreadManager.Instance;
 
-        if (GameInfo.IsSpectator)
+        if (GameInfo.IsClient)
         {
             _activeServers = new List<ServerInfo>();
         }
@@ -184,14 +184,14 @@ public class ConnectionManager : MonoBehaviour
 
     public void Client_DisconnectFromServer ()
     {
-        Debug.Assert (GameInfo.IsSpectator, "The player should not be calling DisconnectFromPlayer()");
-        if (GameInfo.IsSpectator && !IsCurrentlyConnectingToServer)
+        Debug.Assert (GameInfo.IsClient, "The server should not be calling DisconnectFromPlayer()");
+        if (GameInfo.IsClient && !IsCurrentlyConnectingToServer)
         {
             ServerCurrentlyConnectedTo = ServerInfo.Null;
             _myNetWorker.Disconnect (false);
             Client_DisconnectionFromServerStarted?.Invoke();
         }
-        Debug.Assert(!IsCurrentlyConnectingToServer, "You tried to disconnect from a player you're in the proces of connecting to. Probably not kosher");
+        Debug.Assert(!IsCurrentlyConnectingToServer, "You tried to disconnect from a server you're in the proces of connecting to. Probably not kosher");
     }
 
     #endregion
@@ -319,7 +319,7 @@ public class ConnectionManager : MonoBehaviour
     private void OnApplicationQuit()
     {
         //Cleaning up things that were opened up for UDP discovery
-        if (GameInfo.IsSpectator)
+        if (GameInfo.IsClient)
         {
             NetWorker.EndSession ();
         }

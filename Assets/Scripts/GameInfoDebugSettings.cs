@@ -2,5 +2,5 @@
 
 public class GameInfoDebugSettings : MonoBehaviour
 {
-    public bool ForceSpectatorMode;
+    public bool LaunchAsClient;
 }
