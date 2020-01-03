@@ -31,18 +31,28 @@ public class ConnectionTestingMessages : MonoBehaviour
 
     void Server_PlayerDisconnected (NetworkingPlayer player, NetWorker sender)
     {
-        int startIndex = FindString(_stringBuilder, player.Ip);
-        if (startIndex >= 0)
-        {
-            _stringBuilder.Remove(startIndex, player.Ip.Length + 1);
-            _messageText.text = _stringBuilder.ToString();
-        }
+        MainThreadManager.Run(
+            () => {
+                int startIndex = FindString(_stringBuilder, player.Ip);
+                if (startIndex >= 0)
+                {
+                    _stringBuilder.Remove(startIndex, player.Ip.Length + 1);
+                    _messageText.text = _stringBuilder.ToString();
+                }
+            },
+            MainThreadManager.UpdateType.Update
+        );
     }
 
     void Server_PlayerAccepted (NetworkingPlayer player, NetWorker sender)
     {
-        _stringBuilder.Append(player.Ip).Append('\n');
-        _messageText.text = _stringBuilder.ToString();
+        MainThreadManager.Run(
+            () => {
+                _stringBuilder.Append(player.Ip).Append('\n');
+                _messageText.text = _stringBuilder.ToString();
+            },
+            MainThreadManager.UpdateType.Update
+        );
     }
 
     void Client_OnConnectionToServerSucceded ()
