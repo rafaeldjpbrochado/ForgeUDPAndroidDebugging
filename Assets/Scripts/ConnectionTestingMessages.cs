@@ -15,17 +15,17 @@ public class ConnectionTestingMessages : MonoBehaviour
         string myNetInfo = FormatMyNetworkInfo();
 
         _stringBuilder = new System.Text.StringBuilder();
-        _stringBuilder.Append("My IP: ").Append(myNetInfo).Append('\n');
+        _stringBuilder.Append("My IP- ").Append(myNetInfo).Append('\n');
         if (GameInfo.IsClient)
         {
             _client_myNetworkInfo = myNetInfo;
-            _stringBuilder.Append("Connected Host IP:\n");
+            _stringBuilder.Append("Connected Host IP-\n");
             ConnectionManager.Instance.Client_ConnectionToServerSucceded += Client_OnConnectionToServerSucceded;
             ConnectionManager.Instance.Client_DisconnectedFromServer += Client_OnDisconnectedFromServer;
         }
         else
         {
-            _stringBuilder.Append("Connected Client IPs:\n");
+            _stringBuilder.Append("Connected Client IPs-\n");
             NetworkManager.Instance.Networker.playerAccepted += Server_PlayerAccepted;
             NetworkManager.Instance.Networker.playerDisconnected += Server_PlayerDisconnected;
         }

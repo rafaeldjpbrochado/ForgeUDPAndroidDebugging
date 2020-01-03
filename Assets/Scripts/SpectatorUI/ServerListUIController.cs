@@ -194,8 +194,7 @@ public class ServerListUIController : MonoBehaviour
     private StringBuilder GetServerDescription (ConnectionManager.ServerInfo serverInfo)
     {
         gc_uiText.Clear ();
-        gc_uiText.Append ("ip: ");
-        gc_uiText.Append (serverInfo.ip);
+        gc_uiText.Append (serverInfo.ip).Append(": ").Append(serverInfo.port);
 
         return gc_uiText;
     }
