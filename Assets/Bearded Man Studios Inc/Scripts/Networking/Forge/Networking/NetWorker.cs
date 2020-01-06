@@ -1120,7 +1120,7 @@ namespace BeardedManStudios.Forge.Networking
 				case "wlan0": // Wifi
 					break;
 				default:
-					return;
+					continue;
 			}
 
 			switch (nic.OperationalStatus)
@@ -1134,7 +1134,7 @@ namespace BeardedManStudios.Forge.Networking
 				case OperationalStatus.NotPresent:
 				case OperationalStatus.LowerLayerDown:
 				default:
-					return;
+					continue;
 			}
 
 #else
