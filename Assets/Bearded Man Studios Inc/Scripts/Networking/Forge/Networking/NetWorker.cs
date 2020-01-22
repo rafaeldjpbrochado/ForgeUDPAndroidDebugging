@@ -1111,7 +1111,11 @@ namespace BeardedManStudios.Forge.Networking
 		private static IPAddress[] GetLocalIPs() {
 			List<IPAddress> ipList = new List<IPAddress>();
 
-			foreach (NetworkInterface nic in NetworkInterface.GetAllNetworkInterfaces()) {
+            try
+            {
+                BeardedManStudios.Forge.Logging.BMSLog.Log("#### BEGIN NetworkInterface.GetAllNetworkInterfaces() ####");
+                foreach (NetworkInterface nic in NetworkInterface.GetAllNetworkInterfaces())
+                {
 
 #if UNITY_ANDROID
             switch (nic.Name)
@@ -1138,25 +1142,33 @@ namespace BeardedManStudios.Forge.Networking
 			}
 
 #else
-                switch (nic.NetworkInterfaceType) {
-					case NetworkInterfaceType.Wireless80211:
-					case NetworkInterfaceType.Ethernet:
-						break;
-					default:
-						continue;
-				}
+                    switch (nic.NetworkInterfaceType)
+                    {
+                        case NetworkInterfaceType.Wireless80211:
+                        case NetworkInterfaceType.Ethernet:
+                            break;
+                        default:
+                            continue;
+                    }
 
-				if (nic.OperationalStatus != OperationalStatus.Up) continue;
+                    if (nic.OperationalStatus != OperationalStatus.Up) continue;
 #endif
 
-                foreach (UnicastIPAddressInformation ip in nic.GetIPProperties().UnicastAddresses) {
-					if (ip.Address.AddressFamily == AddressFamily.InterNetwork) {
-						ipList.Add(ip.Address);
-					}
-				}
-			}
+                    foreach (UnicastIPAddressInformation ip in nic.GetIPProperties().UnicastAddresses)
+                    {
+                        if (ip.Address.AddressFamily == AddressFamily.InterNetwork)
+                        {
+                            ipList.Add(ip.Address);
+                        }
+                    }
+                }
+            } catch(Exception e)
+            {
+                BeardedManStudios.Forge.Logging.BMSLog.Log("Exception Caught: " + e.ToString());
+            }
 
-			return ipList.ToArray();
+            BeardedManStudios.Forge.Logging.BMSLog.Log("#### END NetworkInterface.GetAllNetworkInterfaces() ####");
+            return ipList.ToArray();
 		}
 
 		/// <summary>

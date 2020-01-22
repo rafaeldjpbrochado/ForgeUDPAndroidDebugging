@@ -44,4 +44,4 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   LoggerVisible: 1
-  LogToFile: 0
+  LogToFile: 1
