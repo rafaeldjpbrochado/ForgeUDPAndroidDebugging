@@ -10,6 +10,9 @@ public class ConnectionTestingMessages : MonoBehaviour
     private string _client_serverNetworkInfo;
     private string _client_myNetworkInfo;
 
+    public Text forgeDebugLogText;
+    public float slowUpdateCooldown;
+
     private void Awake ()
     {
         string myNetInfo = FormatMyNetworkInfo();
@@ -121,5 +124,26 @@ public class ConnectionTestingMessages : MonoBehaviour
         }
 
         return -1;
+    }
+
+    public void Update()
+    {
+        slowUpdateCooldown -= Time.deltaTime;
+        if(slowUpdateCooldown < 0)
+        {
+            slowUpdateCooldown = 1.0f;
+            slowUpdate();
+        }
+    }
+
+    public void slowUpdate()
+    {
+        forgeDebugLogText.text = "Debug Log at: " + Application.persistentDataPath + "/" + "Logs/bmslog.txt" + "\n";
+        System.IO.StreamReader reader = new System.IO.StreamReader(Application.persistentDataPath + "/" + "Logs/bmslog.txt");
+        while (!reader.EndOfStream)
+        {
+            forgeDebugLogText.text += reader.ReadLine();
+        }
+        reader.Close();
     }
 }
