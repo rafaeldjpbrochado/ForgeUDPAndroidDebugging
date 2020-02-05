@@ -1116,9 +1116,12 @@ namespace BeardedManStudios.Forge.Networking
                 BeardedManStudios.Forge.Logging.BMSLog.Log("#### BEGIN NetworkInterface.GetAllNetworkInterfaces() ####");
                 foreach (NetworkInterface nic in NetworkInterface.GetAllNetworkInterfaces())
                 {
+                    BeardedManStudios.Forge.Logging.BMSLog.Log("nic name: " + nic.Name);
+                    BeardedManStudios.Forge.Logging.BMSLog.Log("nic op status: " + nic.OperationalStatus);
+                    BeardedManStudios.Forge.Logging.BMSLog.Log("nic op status: " + nic.OperationalStatus);
 
 #if UNITY_ANDROID
-            switch (nic.Name)
+                    switch (nic.Name)
 			{
 				case "lo": // Localhost
 				case "wlan0": // Wifi
@@ -1156,6 +1159,11 @@ namespace BeardedManStudios.Forge.Networking
 
                     foreach (UnicastIPAddressInformation ip in nic.GetIPProperties().UnicastAddresses)
                     {
+                        if(ip.Address != null)
+                        {
+                            BeardedManStudios.Forge.Logging.BMSLog.Log("ips: " + ip.Address);
+                        }
+
                         if (ip.Address.AddressFamily == AddressFamily.InterNetwork)
                         {
                             ipList.Add(ip.Address);
