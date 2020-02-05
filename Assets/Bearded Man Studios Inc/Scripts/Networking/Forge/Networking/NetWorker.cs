@@ -1116,9 +1116,7 @@ namespace BeardedManStudios.Forge.Networking
                 BeardedManStudios.Forge.Logging.BMSLog.Log("#### BEGIN NetworkInterface.GetAllNetworkInterfaces() ####");
                 foreach (NetworkInterface nic in NetworkInterface.GetAllNetworkInterfaces())
                 {
-                    BeardedManStudios.Forge.Logging.BMSLog.Log("nic name: " + nic.Name);
-                    BeardedManStudios.Forge.Logging.BMSLog.Log("nic op status: " + nic.OperationalStatus);
-                    BeardedManStudios.Forge.Logging.BMSLog.Log("nic op status: " + nic.OperationalStatus);
+                   
 
 #if UNITY_ANDROID
                     switch (nic.Name)
@@ -1157,13 +1155,16 @@ namespace BeardedManStudios.Forge.Networking
                     if (nic.OperationalStatus != OperationalStatus.Up) continue;
 #endif
 
+                    BeardedManStudios.Forge.Logging.BMSLog.Log("nic name: " + nic.Name);
+                    BeardedManStudios.Forge.Logging.BMSLog.Log("nic op status: " + nic.OperationalStatus);
                     foreach (UnicastIPAddressInformation ip in nic.GetIPProperties().UnicastAddresses)
                     {
                         if(ip.Address != null)
                         {
-                            BeardedManStudios.Forge.Logging.BMSLog.Log("ips: " + ip.Address);
+                            BeardedManStudios.Forge.Logging.BMSLog.Log("ip Address: " + ip.Address);
+                            BeardedManStudios.Forge.Logging.BMSLog.Log("Address Family " + ip.Address.AddressFamily);
                         }
-
+                       
                         if (ip.Address.AddressFamily == AddressFamily.InterNetwork)
                         {
                             ipList.Add(ip.Address);
