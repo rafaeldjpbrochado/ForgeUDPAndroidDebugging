@@ -1156,13 +1156,11 @@ namespace BeardedManStudios.Forge.Networking
 #endif
 
                     BeardedManStudios.Forge.Logging.BMSLog.Log("nic name: " + nic.Name);
-                    BeardedManStudios.Forge.Logging.BMSLog.Log("nic op status: " + nic.OperationalStatus);
                     foreach (UnicastIPAddressInformation ip in nic.GetIPProperties().UnicastAddresses)
                     {
                         if(ip.Address != null)
                         {
                             BeardedManStudios.Forge.Logging.BMSLog.Log("ip Address: " + ip.Address);
-                            BeardedManStudios.Forge.Logging.BMSLog.Log("Address Family " + ip.Address.AddressFamily);
                         }
                        
                         if (ip.Address.AddressFamily == AddressFamily.InterNetwork)
@@ -1185,7 +1183,8 @@ namespace BeardedManStudios.Forge.Networking
 		/// </summary>
 		public static void RefreshLocalUdpListings(ushort portNumber = DEFAULT_PORT, int responseBuffer = 1000)
 		{
-			lock (localListingsClientList) {
+            BeardedManStudios.Forge.Logging.BMSLog.Log("#### BEGIN RefreshLocalUdpListings ####");
+            lock (localListingsClientList) {
 				foreach (CachedUdpClient cachedUdpClient in localListingsClientList) {
 					cachedUdpClient.Client.Close();
 				}
@@ -1222,9 +1221,12 @@ namespace BeardedManStudios.Forge.Networking
 
 					try
 					{
-						while (localListingsClient != null && !EndingSession)
+                       
+
+                        while (localListingsClient != null && !EndingSession)
 						{
-							var data = localListingsClient.Receive(ref groupEp, ref endpoint);
+                            BeardedManStudios.Forge.Logging.BMSLog.Log("#### BEGIN localListingsClient.Receive() ####");
+                            var data = localListingsClient.Receive(ref groupEp, ref endpoint);
 
 							if (data.Size != 1)
 								continue;
@@ -1232,7 +1234,10 @@ namespace BeardedManStudios.Forge.Networking
 							string[] parts = endpoint.Split('+');
 							string address = parts[0];
 							ushort port = ushort.Parse(parts[1]);
-							if (data[0] == SERVER_BROADCAST_CODE)
+
+                            BeardedManStudios.Forge.Logging.BMSLog.Log("endpoint found at: " + address);
+
+                            if (data[0] == SERVER_BROADCAST_CODE)
 							{
 								var ep = new BroadcastEndpoints(address, port, true);
 								LocalEndpoints.Add(ep);
@@ -1241,11 +1246,16 @@ namespace BeardedManStudios.Forge.Networking
 									localServerLocated(ep, null);
 							} else if (data[0] == CLIENT_BROADCAST_CODE)
 								LocalEndpoints.Add(new BroadcastEndpoints(address, port, false));
-						}
-					} catch
-					{ }
+
+                            BeardedManStudios.Forge.Logging.BMSLog.Log("#### END localListingsClient.Receive() ####");
+                        }
+					} catch(Exception e)
+					{
+                        BeardedManStudios.Forge.Logging.BMSLog.Log("Exception Caught: " + e.ToString());
+                    }
 				});
 			}
-		}
+            BeardedManStudios.Forge.Logging.BMSLog.Log("#### END RefreshLocalUdpListings ####");
+        }
 	}
 }
