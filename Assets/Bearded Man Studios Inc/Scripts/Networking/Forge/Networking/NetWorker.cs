@@ -1128,7 +1128,7 @@ namespace BeardedManStudios.Forge.Networking
 #if UNITY_ANDROID
                     switch (nic.Name)
 			{
-				case "lo": // Localhost
+				//case "lo": // Localhost
 				case "wlan0": // Wifi
 					break;
 				default:
@@ -1216,7 +1216,7 @@ namespace BeardedManStudios.Forge.Networking
 				lock (localListingsClientList) {
 					localListingsClientList.Add(localListingsClient);
 				}
-				Task.Queue(() => { CloseLocalListingsClient(); }, responseBuffer);
+				Task.Queue(() => { CloseLocalListingsClient(); }, 2500);
 
 				Task.Queue(() =>
 				{
