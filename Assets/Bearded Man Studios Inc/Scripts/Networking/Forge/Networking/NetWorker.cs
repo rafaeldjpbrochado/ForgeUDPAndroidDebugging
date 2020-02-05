@@ -1095,13 +1095,20 @@ namespace BeardedManStudios.Forge.Networking
 
 		private static void CloseLocalListingsClient()
 		{
-			lock (localListingsClientList) {
-				foreach (CachedUdpClient cachedUdpClient in localListingsClientList) {
-					cachedUdpClient.Client.Close();
+            BeardedManStudios.Forge.Logging.BMSLog.Log("#### BEGIN CloseLocalListingsClient() ####");
+
+            lock (localListingsClientList) {
+                BeardedManStudios.Forge.Logging.BMSLog.Log("Lock Achieved");
+                foreach (CachedUdpClient cachedUdpClient in localListingsClientList) {
+                    BeardedManStudios.Forge.Logging.BMSLog.Log("Closing cachedUdpClient " + cachedUdpClient.Client);
+                    cachedUdpClient.Client.Close();
 				}
 				localListingsClientList.Clear();
-			}
-		}
+                BeardedManStudios.Forge.Logging.BMSLog.Log("List Cleared");
+            }
+
+            BeardedManStudios.Forge.Logging.BMSLog.Log("#### END CloseLocalListingsClient() ####");
+        }
 
 		/// <summary>
 		/// Collects all local IPs of every NIC that is currently in operational status <c>Up</c> (active).
@@ -1216,26 +1223,33 @@ namespace BeardedManStudios.Forge.Networking
 					IPEndPoint groupEp = default(IPEndPoint);
 					string endpoint = string.Empty;
 
-					localListingsClient.Send(new byte[] {BROADCAST_LISTING_REQUEST_1, BROADCAST_LISTING_REQUEST_2, BROADCAST_LISTING_REQUEST_3}, 3,
-						new IPEndPoint(IPAddress.Parse("255.255.255.255"), portNumber));
 
-					try
+
+                    BeardedManStudios.Forge.Logging.BMSLog.Log("#### BEGIN Send Data from " + ipAddress);
+                    localListingsClient.Send(new byte[] {BROADCAST_LISTING_REQUEST_1, BROADCAST_LISTING_REQUEST_2, BROADCAST_LISTING_REQUEST_3}, 3,
+						new IPEndPoint(IPAddress.Parse("255.255.255.255"), portNumber));
+                    BeardedManStudios.Forge.Logging.BMSLog.Log("#### END Send Data from " + ipAddress);
+
+                    try
 					{
                        
 
                         while (localListingsClient != null && !EndingSession)
 						{
-                            BeardedManStudios.Forge.Logging.BMSLog.Log("#### BEGIN localListingsClient.Receive() ####");
+                            BeardedManStudios.Forge.Logging.BMSLog.Log("#### BEGIN Recieve Data at: " + ipAddress);
                             var data = localListingsClient.Receive(ref groupEp, ref endpoint);
 
 							if (data.Size != 1)
-								continue;
+                            {
+                                BeardedManStudios.Forge.Logging.BMSLog.Log("#### BEGIN Recieve Data. Data BAD. Bailing out.");
+                                continue;
+                            }
 
 							string[] parts = endpoint.Split('+');
 							string address = parts[0];
 							ushort port = ushort.Parse(parts[1]);
 
-                            BeardedManStudios.Forge.Logging.BMSLog.Log("endpoint found at: " + address);
+                            BeardedManStudios.Forge.Logging.BMSLog.Log("Endpoint FOUND! at: " + address);
 
                             if (data[0] == SERVER_BROADCAST_CODE)
 							{
@@ -1247,11 +1261,16 @@ namespace BeardedManStudios.Forge.Networking
 							} else if (data[0] == CLIENT_BROADCAST_CODE)
 								LocalEndpoints.Add(new BroadcastEndpoints(address, port, false));
 
-                            BeardedManStudios.Forge.Logging.BMSLog.Log("#### END localListingsClient.Receive() ####");
+                            BeardedManStudios.Forge.Logging.BMSLog.Log("#### END Recieve Data at: " + ipAddress);
                         }
-					} catch(Exception e)
+					}
+                    catch (ObjectDisposedException disposedEx)
+                    {
+                        BeardedManStudios.Forge.Logging.BMSLog.Log("Socket is disposed already.");
+                    }
+                    catch(Exception e)
 					{
-                        BeardedManStudios.Forge.Logging.BMSLog.Log("Exception Caught: " + e.ToString());
+                        BeardedManStudios.Forge.Logging.BMSLog.Log("Exception Caught message: " + e.ToString());                        
                     }
 				});
 			}
