@@ -1216,7 +1216,7 @@ namespace BeardedManStudios.Forge.Networking
 				lock (localListingsClientList) {
 					localListingsClientList.Add(localListingsClient);
 				}
-				Task.Queue(() => { CloseLocalListingsClient(); }, 2500);
+				Task.Queue(() => { CloseLocalListingsClient(); }, responseBuffer);
 
 				Task.Queue(() =>
 				{
@@ -1232,37 +1232,41 @@ namespace BeardedManStudios.Forge.Networking
 
                     try
 					{
-                       
-
                         while (localListingsClient != null && !EndingSession)
 						{
+
                             BeardedManStudios.Forge.Logging.BMSLog.Log("#### BEGIN Recieve Data at: " + ipAddress);
-                            var data = localListingsClient.Receive(ref groupEp, ref endpoint);
-
-							if (data.Size != 1)
+                            lock (localListingsClientList) //added lock since this list gets cleared on another thread during the reading causing failure.
                             {
-                                BeardedManStudios.Forge.Logging.BMSLog.Log("#### BEGIN Recieve Data. Data BAD. Bailing out.");
-                                continue;
+                               var data = localListingsClient.Receive(ref groupEp, ref endpoint);
+                            
+                                if (data.Size != 1)
+                                {
+                                    BeardedManStudios.Forge.Logging.BMSLog.Log("#### BEGIN Recieve Data. Data BAD. Bailing out.");
+                                    continue;
+                                }
+
+                                string[] parts = endpoint.Split('+');
+                                string address = parts[0];
+                                ushort port = ushort.Parse(parts[1]);
+
+                                BeardedManStudios.Forge.Logging.BMSLog.Log("Endpoint FOUND! at: " + address);
+
+                                if (data[0] == SERVER_BROADCAST_CODE)
+                                {
+                                    var ep = new BroadcastEndpoints(address, port, true);
+                                    LocalEndpoints.Add(ep);
+
+                                    if (localServerLocated != null)
+                                        localServerLocated(ep, null);
+                                }
+                                else if (data[0] == CLIENT_BROADCAST_CODE)
+                                    LocalEndpoints.Add(new BroadcastEndpoints(address, port, false));
                             }
-
-							string[] parts = endpoint.Split('+');
-							string address = parts[0];
-							ushort port = ushort.Parse(parts[1]);
-
-                            BeardedManStudios.Forge.Logging.BMSLog.Log("Endpoint FOUND! at: " + address);
-
-                            if (data[0] == SERVER_BROADCAST_CODE)
-							{
-								var ep = new BroadcastEndpoints(address, port, true);
-								LocalEndpoints.Add(ep);
-
-								if (localServerLocated != null)
-									localServerLocated(ep, null);
-							} else if (data[0] == CLIENT_BROADCAST_CODE)
-								LocalEndpoints.Add(new BroadcastEndpoints(address, port, false));
-
-                            BeardedManStudios.Forge.Logging.BMSLog.Log("#### END Recieve Data at: " + ipAddress);
                         }
+
+                        BeardedManStudios.Forge.Logging.BMSLog.Log("#### END Recieve Data at: " + ipAddress);
+                        
 					}
                     catch (ObjectDisposedException disposedEx)
                     {
