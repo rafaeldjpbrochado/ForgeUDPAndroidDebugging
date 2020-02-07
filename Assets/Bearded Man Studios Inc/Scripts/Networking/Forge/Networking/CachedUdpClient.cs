@@ -331,16 +331,21 @@ namespace BeardedManStudios.Forge.Networking
 		public BMSByte Receive(ref IPEndPoint remoteEP, ref string endpoint)
 		{
 			CheckDisposed();
+            BeardedManStudios.Forge.Logging.BMSLog.Log("not disposed");
 
-			recBuffer.Clear();
+            recBuffer.Clear();
 
 			if (endPoint == null)
 				endPoint = new IPEndPoint(IPAddress.Any, 0);
 
-			int dataRead = socket.ReceiveFrom(recBuffer.byteArr, ref endPoint);
+            int dataRead = socket.ReceiveFrom(recBuffer.byteArr, ref endPoint);
+            BeardedManStudios.Forge.Logging.BMSLog.Log("dataRead size: " + dataRead);
 
-			if (!connections.ContainsKey(endPoint))
-				connections.Add(endPoint, (((IPEndPoint)endPoint).Address.ToString() + HOST_PORT_CHARACTER_SEPARATOR + ((IPEndPoint)endPoint).Port.ToString()));
+            if (!connections.ContainsKey(endPoint))
+            {
+                connections.Add(endPoint, (((IPEndPoint)endPoint).Address.ToString() + HOST_PORT_CHARACTER_SEPARATOR + ((IPEndPoint)endPoint).Port.ToString()));
+                BeardedManStudios.Forge.Logging.BMSLog.Log("endpoint added to connections");
+            }
 
 			endpoint = connections[endPoint];
 
@@ -350,7 +355,9 @@ namespace BeardedManStudios.Forge.Networking
 			recBuffer.SetSize(dataRead);
 
 			remoteEP = (IPEndPoint)endPoint;
-			return recBuffer;
+            BeardedManStudios.Forge.Logging.BMSLog.Log("remoteEP: " + remoteEP);
+
+            return recBuffer;
 		}
 
 		int DoSend(byte[] dgram, int bytes, IPEndPoint endPoint)
@@ -376,7 +383,7 @@ namespace BeardedManStudios.Forge.Networking
 			{
 				if (ex.ErrorCode == (int)SocketError.AccessDenied)
 				{
-					socket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.Broadcast, 1);
+                    socket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.Broadcast, 1);
 					if (endPoint == null)
 					{
 						return (socket.Send(dgram, 0, bytes, SocketFlags.None));

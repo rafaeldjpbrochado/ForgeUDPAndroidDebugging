@@ -1235,14 +1235,15 @@ namespace BeardedManStudios.Forge.Networking
                         while (localListingsClient != null && !EndingSession)
 						{
 
-                            BeardedManStudios.Forge.Logging.BMSLog.Log("#### BEGIN Recieve Data at: " + ipAddress);
+                            
                             lock (localListingsClientList) //added lock since this list gets cleared on another thread during the reading causing failure.
                             {
-                               var data = localListingsClient.Receive(ref groupEp, ref endpoint);
+                                BeardedManStudios.Forge.Logging.BMSLog.Log("#### BEGIN Recieve Data at: " + ipAddress);
+                                var data = localListingsClient.Receive(ref groupEp, ref endpoint);
                             
                                 if (data.Size != 1)
                                 {
-                                    BeardedManStudios.Forge.Logging.BMSLog.Log("#### BEGIN Recieve Data. Data BAD. Bailing out.");
+                                    BeardedManStudios.Forge.Logging.BMSLog.Log("Data BAD. Bailing out.");
                                     continue;
                                 }
 
