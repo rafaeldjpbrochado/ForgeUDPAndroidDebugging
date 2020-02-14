@@ -332,7 +332,6 @@ namespace BeardedManStudios.Forge.Networking
 		public BMSByte Receive(ref IPEndPoint remoteEP, ref string endpoint)
 		{
 			CheckDisposed();
-            BeardedManStudios.Forge.Logging.BMSLog.Log("not disposed");
 
             recBuffer.Clear();
 
@@ -340,12 +339,12 @@ namespace BeardedManStudios.Forge.Networking
 				endPoint = new IPEndPoint(IPAddress.Any, 0);
 
             int dataRead = socket.ReceiveFrom(recBuffer.byteArr, ref endPoint);
-            BeardedManStudios.Forge.Logging.BMSLog.Log("dataRead size: " + dataRead);
+
 
             if (!connections.ContainsKey(endPoint))
             {
                 connections.Add(endPoint, (((IPEndPoint)endPoint).Address.ToString() + HOST_PORT_CHARACTER_SEPARATOR + ((IPEndPoint)endPoint).Port.ToString()));
-                BeardedManStudios.Forge.Logging.BMSLog.Log("endpoint added to connections");
+                BeardedManStudios.Forge.Logging.BMSLog.Log("endpoint added to connections: " + ((IPEndPoint)endPoint).Address.ToString());
             }
 
 			endpoint = connections[endPoint];
@@ -356,7 +355,6 @@ namespace BeardedManStudios.Forge.Networking
 			recBuffer.SetSize(dataRead);
 
 			remoteEP = (IPEndPoint)endPoint;
-            BeardedManStudios.Forge.Logging.BMSLog.Log("remoteEP: " + remoteEP);
 
             return recBuffer;
 		}
