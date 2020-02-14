@@ -139,11 +139,14 @@ public class ConnectionTestingMessages : MonoBehaviour
     public void slowUpdate()
     {
         forgeDebugLogText.text = "Debug Log at: " + Application.persistentDataPath + "/" + "Logs/bmslog.txt" + "\n";
+
+        /*
         System.IO.StreamReader reader = new System.IO.StreamReader(Application.persistentDataPath + "/" + "Logs/bmslog.txt");
         while (!reader.EndOfStream)
         {
             forgeDebugLogText.text += reader.ReadLine();
         }
         reader.Close();
+        */
     }
 }
