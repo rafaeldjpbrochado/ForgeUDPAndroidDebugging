@@ -52,8 +52,9 @@ namespace BeardedManStudios.Forge.Networking
 		private Socket socket;
 		private AddressFamily family = AddressFamily.InterNetwork;
 		private byte[] recvbuffer;
+        private DateTime cTime;
 
-		public CachedUdpClient()
+        public CachedUdpClient()
 			: this(AddressFamily.InterNetwork)
 		{
 		}
@@ -666,9 +667,21 @@ namespace BeardedManStudios.Forge.Networking
 			}
 		}
 
-		#endregion
-		#region Disposing
-		void IDisposable.Dispose()
+        public DateTime createTime
+        {
+            get
+            {
+                return cTime;
+            }
+            set
+            {
+                cTime = value;
+            }
+        }
+
+        #endregion
+        #region Disposing
+        void IDisposable.Dispose()
 		{
 			Dispose(true);
 			GC.SuppressFinalize(this);
