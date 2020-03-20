@@ -78,7 +78,7 @@ public class ServerListUIController : MonoBehaviour
 
     IEnumerator ListRefreshLoop()
     {
-        WaitForSeconds waitTime = new WaitForSeconds(30f);
+        WaitForSeconds waitTime = new WaitForSeconds(5f);
 
         while (true)
         {

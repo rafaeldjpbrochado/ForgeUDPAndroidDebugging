@@ -359,7 +359,31 @@ namespace BeardedManStudios.Forge.Networking
             return recBuffer;
 		}
 
-		int DoSend(byte[] dgram, int bytes, IPEndPoint endPoint)
+        public void ReceiveLanDiscovery(ref IPEndPoint remoteEP, ref string endpointStr, string myIp, int listenPort)
+        {
+            CheckDisposed();
+
+            recBuffer.Clear();
+
+            //if (endPoint == null)
+            endPoint = new IPEndPoint(IPAddress.Any, listenPort);
+
+            int dataRead = socket.ReceiveFrom(recBuffer.byteArr, ref endPoint);
+            recBuffer.SetSize(dataRead);
+
+            if (recBuffer[0] == NetWorker.SERVER_BROADCAST_CODE)
+            {
+                string address = ((IPEndPoint)endPoint).Address.ToString();
+                if (address.Equals(myIp))
+                    return;
+
+                ushort port = Convert.ToUInt16(((IPEndPoint)endPoint).Port);
+                var ep = new NetWorker.BroadcastEndpoints(address, port, true);
+                NetWorker.LocalEndpoints.Add(ep);
+            }
+        }
+
+        int DoSend(byte[] dgram, int bytes, IPEndPoint endPoint)
 		{
 			/* Catch EACCES and turn on SO_BROADCAST then,
 			 * as UDP Sockets don't have it set by default

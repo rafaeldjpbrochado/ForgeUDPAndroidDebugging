@@ -1145,98 +1145,68 @@ namespace BeardedManStudios.Forge.Networking
         /// A method to find all of the local UDP servers and clients on the network
         /// </summary>
         public static void RefreshLocalUdpListings(ushort portNumber = DEFAULT_PORT, int responseBuffer = 1000)
-		{
-            BeardedManStudios.Forge.Logging.BMSLog.Log("#### BEGIN RefreshLocalUdpListings ####");
-            lock (localListingsClientList) {
-				foreach (CachedUdpClient cachedUdpClient in localListingsClientList) {
-					cachedUdpClient.Client.Close();
-				}
-				localListingsClientList.Clear();
-			}
+        {
+            lock (localListingsClientList)
+            {
+                foreach (CachedUdpClient cachedUdpClient in localListingsClientList)
+                {
+                    cachedUdpClient.Client.Close();
+                }
+                localListingsClientList.Clear();
+            }
 
-			// Initialize the list to hold all of the local network endpoints that respond to the request
-			if (LocalEndpoints == null)
-				LocalEndpoints = new List<BroadcastEndpoints>();
+            // Initialize the list to hold all of the local network endpoints that respond to the request
+            if (LocalEndpoints == null)
+                LocalEndpoints = new List<BroadcastEndpoints>();
 
-			// Make sure to clear out the existing endpoints
-			lock (LocalEndpoints)
-			{
-				LocalEndpoints.Clear();
-			}
+            // Make sure to clear out the existing endpoints
+            lock (LocalEndpoints)
+            {
+                LocalEndpoints.Clear();
+            }
 
-			foreach (IPAddress ipAddress in GetLocalIPs())
-			{
-				// Create a client to write on the network and discover other clients and servers
-				CachedUdpClient localListingsClient = new CachedUdpClient(new IPEndPoint(ipAddress, 19375));
-				localListingsClient.EnableBroadcast = true;
+            foreach (IPAddress ipAddress in GetLocalIPs())
+            {
+                // Create a client to write on the network and discover other clients and servers
+                CachedUdpClient localListingsClient = new CachedUdpClient(new IPEndPoint(ipAddress, portNumber));
                 localListingsClient.createTime = DateTime.Now;
 
-                lock (localListingsClientList) {
-					localListingsClientList.Add(localListingsClient);
-				}
-				//Task.Queue(() => { CloseLocalListingsClient(); }, responseBuffer);
+                localListingsClient.EnableBroadcast = true;
+                lock (localListingsClientList)
+                {
+                    localListingsClientList.Add(localListingsClient);
 
-				Task.Queue(() =>
-				{
-					IPEndPoint groupEp = default(IPEndPoint);
-					string endpoint = string.Empty;
+                }
+                Task.Queue(() => { CloseLocalListingsClient(); }, responseBuffer);
 
-                    BeardedManStudios.Forge.Logging.BMSLog.Log("#### BEGIN Send Data from " + ipAddress);
-                    localListingsClient.Send(new byte[] {BROADCAST_LISTING_REQUEST_1, BROADCAST_LISTING_REQUEST_2, BROADCAST_LISTING_REQUEST_3}, 3,
-						new IPEndPoint(IPAddress.Parse("255.255.255.255"), portNumber));
-                    BeardedManStudios.Forge.Logging.BMSLog.Log("#### END Send Data from " + ipAddress);
+                Task.Queue(() =>
+                {
+                    IPEndPoint groupEp = default(IPEndPoint);
+                    string endpoint = string.Empty;
 
+                    localListingsClient.Send(new byte[] { BROADCAST_LISTING_REQUEST_1, BROADCAST_LISTING_REQUEST_2, BROADCAST_LISTING_REQUEST_3 }, 3,
+                        new IPEndPoint(IPAddress.Parse("255.255.255.255"), portNumber));
                     try
-					{
+                    {
                         while (localListingsClient != null && !EndingSession)
-						{
-                            if (checkToCloseLocalListingClient(localListingsClient, 2500))
-                            {
-                                localListingsClient = null;
-                                continue;
-                            }
-
-                            BeardedManStudios.Forge.Logging.BMSLog.Log("#### BEGIN Recieve Data at: " + ipAddress);
-                            var data = localListingsClient.Receive(ref groupEp, ref endpoint);
-                            
-                            if (data.Size != 1)
-                            {
-                                BeardedManStudios.Forge.Logging.BMSLog.Log("Data BAD. Bailing out.");
-                                continue;
-                            }
-
-                            string[] parts = endpoint.Split('+');
-                            string address = parts[0];
-                            ushort port = ushort.Parse(parts[1]);
-
-                            BeardedManStudios.Forge.Logging.BMSLog.Log("Endpoint FOUND! at: " + address);
-
-                            if (data[0] == SERVER_BROADCAST_CODE)
-                            {
-                                var ep = new BroadcastEndpoints(address, port, true);
-                                LocalEndpoints.Add(ep);
-
-                                if (localServerLocated != null)
-                                    localServerLocated(ep, null);
-                            }
-                            else if (data[0] == CLIENT_BROADCAST_CODE)
-                                LocalEndpoints.Add(new BroadcastEndpoints(address, port, false));
+                        {
+                            localListingsClient.ReceiveLanDiscovery(ref groupEp, ref endpoint, ipAddress.ToString(), Convert.ToInt32(portNumber));
                         }
 
-                        BeardedManStudios.Forge.Logging.BMSLog.Log("#### END Recieve Data at: " + ipAddress);
-                        
-					}
+                    }
                     catch (ObjectDisposedException disposedEx)
                     {
-                        BeardedManStudios.Forge.Logging.BMSLog.Log("Socket is disposed already.");
+                        //BeardedManStudios.Forge.Logging.BMSLog.Log("Socket is disposed already.");
+                        //lastDebugMessage = "Socket is disposed";
                     }
-                    catch(Exception e)
-					{
-                        BeardedManStudios.Forge.Logging.BMSLog.Log("Exception Caught message: " + e.ToString());                        
+
+                    catch (Exception e)
+                    {
+                        //BeardedManStudios.Forge.Logging.BMSLog.Log("Exception Caught message: " + e.ToString());
+                        //lastDebugMessage = e.ToString();
                     }
-				});
-			}
-            BeardedManStudios.Forge.Logging.BMSLog.Log("#### END RefreshLocalUdpListings ####");
+                });
+            }
         }
 	}
 }
